@@ -101,11 +101,11 @@
                 <filter name="filter_mine" string="Mine"
                         domain="[('salesperson_id', '=', uid)]"/>
                 <separator/>
-                <filter name="filter_below" string="Below Target"
+                <filter name="filter_below" string="Below Goal"
                         domain="[('tier', '=', 'below')]"/>
-                <filter name="filter_target" string="At Target"
+                <filter name="filter_target" string="At Goal"
                         domain="[('tier', '=', 'target')]"/>
-                <filter name="filter_super" string="Above Target"
+                <filter name="filter_super" string="Above Goal"
                         domain="[('tier', '=', 'super')]"/>
                 <separator/>
                 <filter name="filter_pending" string="With Pending Collection"
@@ -125,13 +125,13 @@
     </record>
 
     <record id="action_commission_target" model="ir.actions.act_window">
-        <field name="name">Targets &amp; Commissions</field>
+        <field name="name">Goals &amp; Commissions</field>
         <field name="res_model">yaguven.commission.target</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_commission_target_search"/>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Set the first monthly target.</p>
-            <p>Pick a salesperson, a month and a volume target. The commission works
+            <p class="o_view_nocontent_smiling_face">Set the first monthly goal.</p>
+            <p>Pick a salesperson, a month and a volume goal. The commission works
                itself out from that salesperson's invoices for the month.</p>
         </field>
     </record>

@@ -4,11 +4,11 @@ Odoo 19 module — **salesperson commissions** for Darakjian Jewelers.
 
 Business rules (set by Ara, clarified by Gabriel on 2026-07-08):
 
-- A **monthly sales volume target** in USD, set by Janel month by month for each salesperson.
+- A **monthly sales volume goal** in USD, set by Janel month by month for each salesperson.
 - **One rate per tier, applied to the whole total** (a *cliff*, not marginal):
-  - sales `< target` → **3%**
-  - `target ≤ sales < 125% of target` → **6%**
-  - `sales ≥ 125% of target` → **9%**
+  - sales `< goal` → **3%**
+  - `goal ≤ sales < 125% of goal` → **6%**
+  - `sales ≥ 125% of goal` → **9%**
 - The rate applies to the **margin** (price − cost), not to the billed amount.
 - **Paid when collected:** a commission becomes payable once the invoice has been paid.
 - Computed **monthly**, per **individual salesperson**.

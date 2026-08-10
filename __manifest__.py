@@ -6,11 +6,11 @@ Commissions for Darakjian Jewelers.
 
 Business rules (set by Ara, clarified by Gabriel on 2026-07-08):
 
-- A monthly sales volume target in USD, set by Janel for each salesperson.
+- A monthly sales volume goal in USD, set by Janel for each salesperson.
 - One rate per tier applied to the TOTAL — a "cliff", NOT marginal:
-    * sales < target                      -> 3%
-    * target <= sales < 125% of target    -> 6%
-    * sales >= 125% of target             -> 9%
+    * sales < goal                      -> 3%
+    * goal <= sales < 125% of goal      -> 6%
+    * sales >= 125% of goal             -> 9%
 - The rate applies to the MARGIN (price - cost), not to the billed amount.
 - Paid when COLLECTED: a commission becomes payable once the invoice is paid.
 - Computed MONTHLY, per INDIVIDUAL salesperson.
@@ -23,7 +23,7 @@ module (sale_commission).
     'author': 'Yagüven C.G.',
     'maintainer': 'Yagüven C.G.',
     'category': 'Sales/Commissions',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'license': 'LGPL-3',
     'depends': [
         'base',

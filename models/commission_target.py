@@ -19,15 +19,15 @@ COLLECTED_STATES = ('in_payment', 'paid')
 
 
 class YaguvenCommissionTarget(models.Model):
-    """The monthly commission target per salesperson, and the result screen.
+    """The monthly commission goal per salesperson, and the result screen.
 
-    This is the only thing Janel enters: salesperson, month and volume target. Everything
+    This is the only thing Janel enters: salesperson, month and volume goal. Everything
     else — actual volume, tier, commission earned and collected — is materialized by the
     recompute engine reading that salesperson's native invoices for the month.
     """
 
     _name = 'yaguven.commission.target'
-    _description = 'Darakjian — Monthly Commission Target'
+    _description = 'Darakjian — Monthly Commission Goal'
     _inherit = ['mail.thread']
     _order = 'year desc, month desc, salesperson_id'
     _rec_name = 'name'
@@ -54,10 +54,10 @@ class YaguvenCommissionTarget(models.Model):
         tracking=True,
     )
     objective_usd = fields.Monetary(
-        string='Target (USD)',
+        string='Goal (USD)',
         currency_field='currency_id',
         tracking=True,
-        help='Monthly sales volume target. Set by Janel.',
+        help='Monthly sales volume goal. Set by Janel.',
     )
 
     company_id = fields.Many2one(
@@ -91,7 +91,7 @@ class YaguvenCommissionTarget(models.Model):
         store=True,
     )
     tier = fields.Selection(
-        [('below', 'Below Target'), ('target', 'At Target'), ('super', 'Above Target')],
+        [('below', 'Below Goal'), ('target', 'At Goal'), ('super', 'Above Goal')],
         string='Tier Reached',
         compute='_compute_tier',
         store=True,
@@ -126,7 +126,7 @@ class YaguvenCommissionTarget(models.Model):
         (
             'salesperson_period_uniq',
             'unique(salesperson_id, year, month, company_id)',
-            'A target already exists for this salesperson in this month.',
+            'A goal already exists for this salesperson in this month.',
         ),
     ]
 

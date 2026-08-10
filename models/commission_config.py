@@ -7,8 +7,8 @@ class YaguvenCommissionConfig(models.Model):
 
     Holds the fixed rates and the upper-tier cut-off. Gabriel set 3/6/9 with the cut-off
     at 125%. They live as editable settings rather than hard-coded numbers, but Janel
-    does not touch them: she only enters the monthly target
-    en ``yaguven.commission.target``.
+    does not touch them: she only enters the monthly goal in
+    ``yaguven.commission.target``.
     """
 
     _name = 'yaguven.commission.config'
@@ -31,29 +31,29 @@ class YaguvenCommissionConfig(models.Model):
     active = fields.Boolean(default=True, tracking=True)
 
     pct_below = fields.Float(
-        string='% Below Target',
+        string='% Below Goal',
         digits=(5, 2),
         default=3.0,
         required=True,
-        help='Rate applied when the month volume falls short of the target.',
+        help='Rate applied when the month volume falls short of the goal.',
         tracking=True,
     )
     pct_target = fields.Float(
-        string='% At Target',
+        string='% At Goal',
         digits=(5, 2),
         default=6.0,
         required=True,
-        help='Rate applied when the volume reaches the target but stays below '
-             'llega al corte superior.',
+        help='Rate applied when the volume reaches the goal but stays below the '
+             'upper cut-off.',
         tracking=True,
     )
     pct_super = fields.Float(
-        string='% Above Target',
+        string='% Above Goal',
         digits=(5, 2),
         default=9.0,
         required=True,
         help='Rate applied when the volume reaches or passes the upper '
-             'cut-off (target x threshold).',
+             'cut-off (goal x threshold).',
         tracking=True,
     )
     super_threshold_pct = fields.Float(
@@ -61,8 +61,8 @@ class YaguvenCommissionConfig(models.Model):
         digits=(5, 2),
         default=125.0,
         required=True,
-        help='Percentage of the target at which the upper rate starts to apply. '
-             'E.g. 125 => the upper tier starts at 1.25 x target.',
+        help='Percentage of the goal at which the upper rate starts to apply. '
+             'E.g. 125 => the upper tier starts at 1.25 x goal.',
         tracking=True,
     )
 
@@ -82,7 +82,7 @@ class YaguvenCommissionConfig(models.Model):
             if rec.super_threshold_pct < 100:
                 raise ValidationError(_(
                     'The upper tier threshold cannot be lower than 100%% '
-                    '(the upper tier starts at the target or above).'
+                    '(the upper tier starts at the goal or above).'
                 ))
 
     @api.constrains('company_id', 'active')
@@ -120,11 +120,11 @@ class YaguvenCommissionConfig(models.Model):
         return config
 
     def _resolve_tier(self, volume, objective):
-        """Resolve the tier and the rate from the month volume against the target.
+        """Resolve the tier and the rate from the month volume against the goal.
 
         A "cliff": the rate applies to the whole total, not marginally by tier.
         Returns (tier, pct), with tier in ('below', 'target', 'super').
-        When the target is not positive (not entered yet), 'below' is assumed.
+        When the goal is not positive (not entered yet), 'below' is assumed.
         """
         self.ensure_one()
         if not objective or objective <= 0:

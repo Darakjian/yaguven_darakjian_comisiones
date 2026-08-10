@@ -48,7 +48,7 @@ class YaguvenCommissionLine(models.Model):
     invoice_date = fields.Date(related='move_id.invoice_date', store=True)
     move_type = fields.Selection(related='move_id.move_type')
 
-    # --- Snapshots congelados a la fecha de la factura ---
+    # --- Snapshots frozen as of the invoice date ---
     volume = fields.Monetary(
         currency_field='currency_id',
         help='Attributed net billed, signed: credit notes subtract.',
