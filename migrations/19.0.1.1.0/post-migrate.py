@@ -28,28 +28,32 @@ from odoo import SUPERUSER_ID, api
 
 _logger = logging.getLogger(__name__)
 
-VIEJO_PREFIJO = "Comisiones — "
-NUEVO_PREFIJO = "Commissions — "
-CRON_VIEJO = "Comisiones: recálculo mensual"
-CRON_NUEVO = "Commissions: monthly recompute"
+OLD_PREFIX = "Comisiones — "
+NEW_PREFIX = "Commissions — "
+OLD_CRON = "Comisiones: recálculo mensual"
+NEW_CRON = "Commissions: monthly recompute"
 
 
 def migrate(cr, version):
     if not version:
         return  # fresh install: the XML data already carries the English text
 
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    # `tracking_disable`: renaming a tracked field posts a chatter entry reading
+    # "Comisiones — Darakjian -> Commissions — Darakjian". That entry documents nothing
+    # about the client's business — it documents OUR maintenance run — and it puts the
+    # very Spanish we are removing back on the screen the client opens every day.
+    env = api.Environment(cr, SUPERUSER_ID, {"tracking_disable": True})
 
     # 1. Settings record. Matched by PREFIX and not by the whole string, because the
     #    default (`_('Comisiones — %s', company.name)`) produces one name per company
     #    while the seed file produces another. A name the client typed does not match
     #    either and is left alone.
     configs = env["yaguven.commission.config"].with_context(active_test=False).search([])
-    renombradas = 0
+    renamed = 0
     for cfg in configs:
-        if cfg.name and cfg.name.startswith(VIEJO_PREFIJO):
-            cfg.name = NUEVO_PREFIJO + cfg.name[len(VIEJO_PREFIJO):]
-            renombradas += 1
+        if cfg.name and cfg.name.startswith(OLD_PREFIX):
+            cfg.name = NEW_PREFIX + cfg.name[len(OLD_PREFIX):]
+            renamed += 1
 
     # 2. The stored name of every target. `_compute_name` is called outright: `modified()`
     #    would not fire, since no field it depends on has changed - the SELECTION LABELS
@@ -62,11 +66,11 @@ def migrate(cr, version):
     # 3. The cron, which its own `noupdate="1"` keeps the upgrade from touching.
     cron = env.ref("yaguven_darakjian_comisiones.ir_cron_commission_recompute",
                    raise_if_not_found=False)
-    cron_ok = False
-    if cron and cron.name == CRON_VIEJO:
-        cron.name = CRON_NUEVO
-        cron_ok = True
+    cron_renamed = False
+    if cron and cron.name == OLD_CRON:
+        cron.name = NEW_CRON
+        cron_renamed = True
 
     _logger.info(
         "yaguven_darakjian_comisiones -> EN: %d settings renamed, %d target names "
-        "recomputed, cron renamed: %s", renombradas, len(targets), cron_ok)
+        "recomputed, cron renamed: %s", renamed, len(targets), cron_renamed)
