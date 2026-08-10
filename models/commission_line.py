@@ -2,13 +2,13 @@ from odoo import api, fields, models
 
 
 class YaguvenCommissionLine(models.Model):
-    """Detalle de comisión por factura del vendedor en el mes.
+    """One commission line per invoice, for the salesperson, within the month.
 
-    Una línea por comprobante (factura o nota de crédito) del vendedor dentro del
-    período del ``target``. Los snapshots ``volume`` y ``cost_total`` se congelan
-    al crear la línea (motor de recálculo en ``yaguven.commission.target``); el
-    ``pct_applied`` y el estado de cobro se refrescan en cada recálculo, y de ahí
-    se derivan los importes de comisión.
+    One line per document (invoice or credit note) issued by the salesperson inside the
+    ``target`` period. The ``volume`` and ``cost_total`` snapshots are frozen when the
+    line is created by the recompute engine in ``yaguven.commission.target``, while
+    ``pct_applied`` and the collection state are refreshed on every recompute — and the
+    commission amounts follow from those.
     """
 
     _name = 'yaguven.commission.line'
@@ -36,7 +36,7 @@ class YaguvenCommissionLine(models.Model):
         store=True,
     )
 
-    # --- Comprobante origen (datasource nativo, solo lectura) ---
+    # --- Source invoice (native datasource, read only) ---
     move_id = fields.Many2one(
         'account.move',
         string='Invoice',
@@ -64,7 +64,7 @@ class YaguvenCommissionLine(models.Model):
         help='Margin = net billed − cost. The commission base.',
     )
 
-    # --- Tramo y comisión ---
+    # --- Tier and commission ---
     pct_applied = fields.Float(
         string='Rate Applied',
         digits=(5, 2),

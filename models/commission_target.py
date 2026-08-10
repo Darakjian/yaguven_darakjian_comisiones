@@ -5,7 +5,7 @@ from datetime import date
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-# Código entre corchetes al inicio del nombre de línea: "[DRNG.00085629] LAB GROWN ..."
+# Bracketed code at the start of a line name: "[DRNG.00085629] LAB GROWN ..."
 CODE_RE = re.compile(r'^\s*\[([^\]]+)\]')
 
 MONTHS = [
@@ -14,16 +14,16 @@ MONTHS = [
     ('9', 'September'), ('10', 'October'), ('11', 'November'), ('12', 'December'),
 ]
 
-# Estados de cobro del comprobante que consideramos "percibido".
+# The invoice payment states we treat as "collected".
 COLLECTED_STATES = ('in_payment', 'paid')
 
 
 class YaguvenCommissionTarget(models.Model):
-    """Objetivo mensual de comisión por vendedor + pantalla de resultado.
+    """The monthly commission target per salesperson, and the result screen.
 
-    Es lo único que carga Janel: vendedor, mes y objetivo de volumen. El resto
-    (volumen real, tramo, comisión devengada y percibida) lo materializa el motor
-    de recálculo leyendo las facturas nativas del vendedor en el mes.
+    This is the only thing Janel enters: salesperson, month and volume target. Everything
+    else — actual volume, tier, commission earned and collected — is materialized by the
+    recompute engine reading that salesperson's native invoices for the month.
     """
 
     _name = 'yaguven.commission.target'
@@ -77,7 +77,7 @@ class YaguvenCommissionTarget(models.Model):
     line_ids = fields.One2many('yaguven.commission.line', 'target_id')
     line_count = fields.Integer(compute='_compute_totals', store=True)
 
-    # --- Agregados de la pantalla por vendedor ---
+    # --- Totals shown on the salesperson screen ---
     volume_total = fields.Monetary(
         string='Billed Volume',
         currency_field='currency_id',
@@ -176,7 +176,7 @@ class YaguvenCommissionTarget(models.Model):
                 raise ValidationError(_('The period year is not valid.'))
 
     # ------------------------------------------------------------------
-    # Motor de recálculo
+    # Recompute engine
     # ------------------------------------------------------------------
     def _period_range(self):
         self.ensure_one()
@@ -185,7 +185,7 @@ class YaguvenCommissionTarget(models.Model):
         return date(y, m, 1), date(y, m, last_day)
 
     def _find_moves(self, date_from, date_to):
-        """Facturas y NC posteadas del vendedor en el período (datasource nativo)."""
+        """Posted invoices and credit notes for the salesperson in the period."""
         self.ensure_one()
         return self.env['account.move'].search([
             ('company_id', '=', self.company_id.id),
@@ -197,12 +197,12 @@ class YaguvenCommissionTarget(models.Model):
         ])
 
     def _product_from_line_name(self, name, cache=None):
-        """Recupera el producto por el [código] embebido en el nombre de la línea.
+        """Recover the product from the [code] embedded in the line name.
 
-        Las facturas migradas traen líneas de producto SIN product_id enlazado
-        pero con el default_code entre corchetes en el texto ([DRNG.00085629] ...).
-        Macheo por default_code exacto y, si no, por sufijo normalizado (B.7).
-        Devuelve un recordset (vacío si no resuelve).
+        Migrated invoices carry product lines with NO product_id linked, but with the
+        default_code in brackets inside the text ([DRNG.00085629] ...). Matched on the
+        exact default_code first and, failing that, on a normalized suffix.
+        Returns a recordset, empty when it cannot be resolved.
         """
         Product = self.env['product.product']
         if not name:
@@ -215,7 +215,7 @@ class YaguvenCommissionTarget(models.Model):
             return cache[code]
         prod = Product.search([('default_code', '=', code)], limit=1)
         if not prod and '.' in code:
-            # Sufijo tras el último punto, sin ceros a la izquierda (B.7).
+            # The suffix after the last dot, ignoring leading zeros.
             suffix = code.split('.')[-1]
             prod = Product.search([('default_code', '=like', '%.' + suffix)], limit=1)
         if cache is not None:
@@ -223,14 +223,14 @@ class YaguvenCommissionTarget(models.Model):
         return prod
 
     def _move_snapshot(self, move, code_cache=None):
-        """Snapshot de volumen (neto) y costo del comprobante, en moneda de la compañía.
+        """Snapshot of the invoice's net volume and cost, in company currency.
 
-        - Volumen = neto de TODAS las líneas de venta (display_type='product'),
-          enlazadas o no a un producto — es el volumen de ventas del tramo.
-        - Costo por línea: standard_price del product_id; si la línea no tiene
-          product_id (data migrada), se recupera el producto por el [código] del
-          nombre. Si no se resuelve, costo 0 (queda como margen puro).
-        - NC (out_refund) entran con signo negativo.
+        - Volume = the net of EVERY sale line (display_type='product'), linked to a
+          product or not: this is the sales volume that decides the tier.
+        - Cost per line comes from the product's standard_price. When the line has no
+          product_id (migrated data), the product is recovered from the [code] in the
+          name. Unresolved lines cost 0, so they count as pure margin.
+        - Credit notes (out_refund) come in with a negative sign.
         """
         self.ensure_one()
         company = self.company_id
@@ -244,7 +244,7 @@ class YaguvenCommissionTarget(models.Model):
             product = line.product_id or self._product_from_line_name(line.name, code_cache)
             if product:
                 cost_total += product.with_company(company).standard_price * line.quantity
-        # Neto en moneda de la compañía (USD); el costo ya viene en moneda de la compañía.
+        # Net converted to company currency (USD); the cost is already in it.
         if move.currency_id and move.currency_id != company.currency_id:
             rate_date = move.invoice_date or fields.Date.context_today(self)
             net_company = move.currency_id._convert(
@@ -271,7 +271,7 @@ class YaguvenCommissionTarget(models.Model):
             snap = self._move_snapshot(move, code_cache)
             line = existing.get(move.id)
             if line:
-                # Volumen y costo quedan congelados; solo refrescamos el cobro.
+                # Volume and cost stay frozen; only the collection state is refreshed.
                 line.is_collected = snap['is_collected']
             else:
                 self.env['yaguven.commission.line'].create({
@@ -281,11 +281,11 @@ class YaguvenCommissionTarget(models.Model):
                     'cost_total': snap['cost_total'],
                     'is_collected': snap['is_collected'],
                 })
-        # Bajas: comprobantes que dejaron de calificar (despoteados/cancelados/reasignados).
+        # Dropped: invoices that stopped qualifying (unposted, cancelled or reassigned).
         stale = self.line_ids.filtered(lambda l: l.move_id.id not in seen)
         stale.unlink()
 
-        # Tramo por el volumen del mes y % único aplicado a todas las líneas (cliff).
+        # Tier from the month volume, one single rate applied to every line (cliff).
         volume_total = sum(self.line_ids.mapped('volume'))
         _tier, pct = config._resolve_tier(volume_total, self.objective_usd)
         if self.line_ids:
@@ -302,7 +302,7 @@ class YaguvenCommissionTarget(models.Model):
         return True
 
     # ------------------------------------------------------------------
-    # Disparadores automáticos
+    # Automatic triggers
     # ------------------------------------------------------------------
     @api.model_create_multi
     def create(self, vals_list):

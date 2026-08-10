@@ -1,21 +1,29 @@
 # yaguven_darakjian_comisiones
 
-Módulo Odoo 19 — **Comisiones por vendedor** para Darakjian Jewelers.
+Odoo 19 module — **salesperson commissions** for Darakjian Jewelers.
 
-Lógica de negocio (definida por Ara, aclarada por Gabriel 2026-07-08):
+Business rules (set by Ara, clarified by Gabriel on 2026-07-08):
 
-- **Objetivo mensual de volumen** de ventas en USD, definido por Janel mes a mes por vendedor.
-- **Tasa única por tramo sobre el total** (efecto *cliff*, no marginal):
-  - ventas `< objetivo` → **3%**
-  - `objetivo ≤ ventas < 125% objetivo` → **6%**
-  - `ventas ≥ 125% objetivo` → **9%**
-- El porcentaje se aplica sobre el **margen** (precio − costo), no sobre la facturación.
-- **Criterio percibido:** la comisión se vuelve pagable cuando la factura está cobrada.
-- Cálculo **mensual**, por **vendedor individual**.
+- A **monthly sales volume target** in USD, set by Janel month by month for each salesperson.
+- **One rate per tier, applied to the whole total** (a *cliff*, not marginal):
+  - sales `< target` → **3%**
+  - `target ≤ sales < 125% of target` → **6%**
+  - `sales ≥ 125% of target` → **9%**
+- The rate applies to the **margin** (price − cost), not to the billed amount.
+- **Paid when collected:** a commission becomes payable once the invoice has been paid.
+- Computed **monthly**, per **individual salesperson**.
 
-Diseño no invasivo: lee los nativos (`account.move`, `account.move.line`,
-`account.payment`) como *datasource* de solo lectura y escribe únicamente en
-modelos propios (`yaguven.commission.*`). No depende ni hereda del módulo de
-comisiones nativo de Odoo (`sale_commission`).
+Non-invasive by design: it reads the native models (`account.move`, `account.move.line`,
+`account.payment`) as a read-only *datasource* and writes only to its own models
+(`yaguven.commission.*`). It neither depends on nor inherits from Odoo's own commission
+module (`sale_commission`).
+
+## A note on language
+
+The source of this module is English, including its comments — Darakjian is a Michigan
+deployment. There are deliberately **no `.po` catalogs**: since Odoo 16 the `en_US` value
+IS the translation key, so a catalog can never translate *into* the source language.
+Writing the strings in English is what makes the module translatable at all; adding a
+Spanish-keyed catalog would undo that. See `../GLOSSARY.md`.
 
 Yagüven C.G.

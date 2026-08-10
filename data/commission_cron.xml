@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <!-- Refresca el mes en curso y el anterior: fija tramos y hace entrar los cobros. -->
+    <!-- Refreshes the current month and the previous one: settles tiers and brings in
+         collections as invoices get paid. -->
     <record id="ir_cron_commission_recompute" model="ir.cron">
         <field name="name">Commissions: monthly recompute</field>
         <field name="model_id" ref="model_yaguven_commission_target"/>

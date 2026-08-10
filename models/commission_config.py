@@ -3,11 +3,11 @@ from odoo.exceptions import ValidationError
 
 
 class YaguvenCommissionConfig(models.Model):
-    """Configuración de tramos de comisión (company-level).
+    """Commission tier settings, one per company.
 
-    Guarda los porcentajes fijos y el corte del tramo superior. Gabriel definió
-    3/6/9 y el corte en 125%; viven como configuración (editable) para no cablear
-    los números en código, pero Janel no los toca: solo carga el objetivo mensual
+    Holds the fixed rates and the upper-tier cut-off. Gabriel set 3/6/9 with the cut-off
+    at 125%. They live as editable settings rather than hard-coded numbers, but Janel
+    does not touch them: she only enters the monthly target
     en ``yaguven.commission.target``.
     """
 
@@ -106,7 +106,7 @@ class YaguvenCommissionConfig(models.Model):
     # ------------------------------------------------------------------
     @api.model
     def _get_for_company(self, company):
-        """Devuelve la config activa de la compañía; la crea con defaults si no hay."""
+        """Return the company's active settings, creating them with defaults if absent."""
         company = company or self.env.company
         config = self.search([
             ('company_id', '=', company.id),
@@ -120,11 +120,11 @@ class YaguvenCommissionConfig(models.Model):
         return config
 
     def _resolve_tier(self, volume, objective):
-        """Resuelve el tramo y el % según el volumen del mes contra el objetivo.
+        """Resolve the tier and the rate from the month volume against the target.
 
-        Efecto "cliff": el % aplica sobre el total, no por tramos marginales.
-        Devuelve (tier, pct) con tier in ('below', 'target', 'super').
-        Si el objetivo no es positivo (aún no cargado), se asume 'below'.
+        A "cliff": the rate applies to the whole total, not marginally by tier.
+        Returns (tier, pct), with tier in ('below', 'target', 'super').
+        When the target is not positive (not entered yet), 'below' is assumed.
         """
         self.ensure_one()
         if not objective or objective <= 0:
