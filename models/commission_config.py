@@ -12,13 +12,13 @@ class YaguvenCommissionConfig(models.Model):
     """
 
     _name = 'yaguven.commission.config'
-    _description = 'Darakjian — Configuración de comisiones'
+    _description = 'Darakjian — Commission Settings'
     _inherit = ['mail.thread']
     _order = 'company_id, id'
 
     name = fields.Char(
         required=True,
-        default=lambda self: _('Comisiones — %s', self.env.company.name),
+        default=lambda self: _('Commissions — %s', self.env.company.name),
         tracking=True,
     )
     company_id = fields.Many2one(
@@ -31,38 +31,38 @@ class YaguvenCommissionConfig(models.Model):
     active = fields.Boolean(default=True, tracking=True)
 
     pct_below = fields.Float(
-        string='% bajo objetivo',
+        string='% Below Target',
         digits=(5, 2),
         default=3.0,
         required=True,
-        help='Porcentaje aplicado cuando el volumen del mes es menor al objetivo.',
+        help='Rate applied when the month volume falls short of the target.',
         tracking=True,
     )
     pct_target = fields.Float(
-        string='% en objetivo',
+        string='% At Target',
         digits=(5, 2),
         default=6.0,
         required=True,
-        help='Porcentaje aplicado cuando el volumen alcanza el objetivo pero no '
+        help='Rate applied when the volume reaches the target but stays below '
              'llega al corte superior.',
         tracking=True,
     )
     pct_super = fields.Float(
-        string='% sobre objetivo',
+        string='% Above Target',
         digits=(5, 2),
         default=9.0,
         required=True,
-        help='Porcentaje aplicado cuando el volumen alcanza o supera el corte '
-             'superior (objetivo x umbral).',
+        help='Rate applied when the volume reaches or passes the upper '
+             'cut-off (target x threshold).',
         tracking=True,
     )
     super_threshold_pct = fields.Float(
-        string='Umbral tramo superior (%)',
+        string='Upper Tier Threshold (%)',
         digits=(5, 2),
         default=125.0,
         required=True,
-        help='Porcentaje del objetivo a partir del cual aplica el % superior. '
-             'Ej.: 125 => el tramo superior arranca en 1,25 x objetivo.',
+        help='Percentage of the target at which the upper rate starts to apply. '
+             'E.g. 125 => the upper tier starts at 1.25 x target.',
         tracking=True,
     )
 
@@ -74,15 +74,15 @@ class YaguvenCommissionConfig(models.Model):
         for rec in self:
             for value in (rec.pct_below, rec.pct_target, rec.pct_super):
                 if value < 0 or value > 100:
-                    raise ValidationError(_('Los porcentajes deben estar entre 0 y 100.'))
+                    raise ValidationError(_('Rates must be between 0 and 100.'))
 
     @api.constrains('super_threshold_pct')
     def _check_threshold(self):
         for rec in self:
             if rec.super_threshold_pct < 100:
                 raise ValidationError(_(
-                    'El umbral del tramo superior no puede ser menor a 100%% '
-                    '(el tramo superior arranca en el objetivo o por encima).'
+                    'The upper tier threshold cannot be lower than 100%% '
+                    '(the upper tier starts at the target or above).'
                 ))
 
     @api.constrains('company_id', 'active')
@@ -97,8 +97,8 @@ class YaguvenCommissionConfig(models.Model):
             ])
             if others:
                 raise ValidationError(_(
-                    'Ya existe una configuración de comisiones activa para la '
-                    'compañía "%s". Archivá la existente antes de crear otra.'
+                    'Active commission settings already exist for company '
+                    '"%s". Archive the existing one before creating another.'
                 ) % rec.company_id.name)
 
     # ------------------------------------------------------------------
@@ -114,7 +114,7 @@ class YaguvenCommissionConfig(models.Model):
         ], limit=1)
         if not config:
             config = self.sudo().create({
-                'name': _('Comisiones — %s', company.name),
+                'name': _('Commissions — %s', company.name),
                 'company_id': company.id,
             })
         return config

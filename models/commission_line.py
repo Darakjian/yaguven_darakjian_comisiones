@@ -12,7 +12,7 @@ class YaguvenCommissionLine(models.Model):
     """
 
     _name = 'yaguven.commission.line'
-    _description = 'Darakjian — Línea de comisión'
+    _description = 'Darakjian — Commission Line'
     _order = 'target_id, invoice_date, move_id'
 
     target_id = fields.Many2one(
@@ -39,39 +39,39 @@ class YaguvenCommissionLine(models.Model):
     # --- Comprobante origen (datasource nativo, solo lectura) ---
     move_id = fields.Many2one(
         'account.move',
-        string='Comprobante',
+        string='Invoice',
         required=True,
         index=True,
         ondelete='cascade',
     )
-    move_name = fields.Char(related='move_id.name', string='Número')
+    move_name = fields.Char(related='move_id.name', string='Number')
     invoice_date = fields.Date(related='move_id.invoice_date', store=True)
     move_type = fields.Selection(related='move_id.move_type')
 
     # --- Snapshots congelados a la fecha de la factura ---
     volume = fields.Monetary(
         currency_field='currency_id',
-        help='Neto facturado atribuido (con signo: las notas de crédito restan).',
+        help='Attributed net billed, signed: credit notes subtract.',
     )
     cost_total = fields.Monetary(
         currency_field='currency_id',
-        help='Costo total de las líneas de producto, congelado a la fecha de la factura.',
+        help='Total cost of the product lines, frozen as of the invoice date.',
     )
     margin = fields.Monetary(
         currency_field='currency_id',
         compute='_compute_margin',
         store=True,
-        help='Margen = neto facturado − costo. Base de la comisión.',
+        help='Margin = net billed − cost. The commission base.',
     )
 
     # --- Tramo y comisión ---
     pct_applied = fields.Float(
-        string='% aplicado',
+        string='Rate Applied',
         digits=(5, 2),
-        help='Porcentaje del tramo alcanzado por el volumen del mes (cliff).',
+        help='Rate of the tier the month volume reached (cliff, not marginal).',
     )
     commission_amount = fields.Monetary(
-        string='Comisión devengada',
+        string='Commission Earned',
         currency_field='currency_id',
         compute='_compute_commission_amount',
         store=True,
@@ -79,22 +79,22 @@ class YaguvenCommissionLine(models.Model):
 
     # --- Cobro (criterio percibido) ---
     is_collected = fields.Boolean(
-        string='Cobrada',
-        help='La factura origen está cobrada (payment_state paid/in_payment).',
+        string='Collected',
+        help='The source invoice has been collected (payment_state paid/in_payment).',
     )
     commission_payable = fields.Monetary(
-        string='Comisión pagable',
+        string='Commission Payable',
         currency_field='currency_id',
         compute='_compute_commission_payable',
         store=True,
-        help='Comisión que ya se puede pagar: devengada solo si la factura está cobrada.',
+        help='Commission that can already be paid out: earned, but only once the invoice is collected.',
     )
 
     _sql_constraints = [
         (
             'target_move_uniq',
             'unique(target_id, move_id)',
-            'Ya existe una línea de comisión para este comprobante en este período.',
+            'A commission line already exists for this invoice in this period.',
         ),
     ]
 

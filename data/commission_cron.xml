@@ -2,7 +2,7 @@
 <odoo noupdate="1">
     <!-- Refresca el mes en curso y el anterior: fija tramos y hace entrar los cobros. -->
     <record id="ir_cron_commission_recompute" model="ir.cron">
-        <field name="name">Comisiones: recálculo mensual</field>
+        <field name="name">Commissions: monthly recompute</field>
         <field name="model_id" ref="model_yaguven_commission_target"/>
         <field name="state">code</field>
         <field name="code">model._cron_recompute()</field>

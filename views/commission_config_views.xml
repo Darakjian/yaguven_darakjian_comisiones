@@ -24,15 +24,15 @@
             <form>
                 <sheet>
                     <div class="oe_title">
-                        <h1><field name="name" placeholder="Comisiones — ..."/></h1>
+                        <h1><field name="name" placeholder="Commissions — ..."/></h1>
                     </div>
                     <group>
-                        <group string="Alcance">
+                        <group string="Scope">
                             <field name="company_id" groups="base.group_multi_company"
                                    options="{'no_create': True}"/>
                             <field name="active"/>
                         </group>
-                        <group string="Tramos (cliff sobre margen)">
+                        <group string="Tiers (cliff on margin)">
                             <field name="pct_below"/>
                             <field name="pct_target"/>
                             <field name="pct_super"/>
@@ -40,9 +40,9 @@
                         </group>
                     </group>
                     <div class="text-muted">
-                        El porcentaje del tramo alcanzado se aplica sobre el margen total
-                        del mes (no por tramos marginales). El tramo lo determina el
-                        volumen facturado del vendedor contra su objetivo mensual.
+                        The rate of the tier reached applies to the whole margin for the
+                        month, not marginally tier by tier. The tier is set by the
+                        salesperson's billed volume against their monthly target.
                     </div>
                 </sheet>
                 <chatter/>
@@ -51,7 +51,7 @@
     </record>
 
     <record id="action_commission_config" model="ir.actions.act_window">
-        <field name="name">Configuración de comisiones</field>
+        <field name="name">Commission Settings</field>
         <field name="res_model">yaguven.commission.config</field>
         <field name="view_mode">list,form</field>
     </record>

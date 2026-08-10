@@ -9,13 +9,13 @@
                 <field name="salesperson_id"/>
                 <field name="move_id"/>
                 <field name="invoice_date"/>
-                <field name="volume" widget="monetary" sum="Volumen"/>
-                <field name="cost_total" widget="monetary" sum="Costo"/>
-                <field name="margin" widget="monetary" sum="Margen"/>
+                <field name="volume" widget="monetary" sum="Volume"/>
+                <field name="cost_total" widget="monetary" sum="Cost"/>
+                <field name="margin" widget="monetary" sum="Margin"/>
                 <field name="pct_applied"/>
-                <field name="commission_amount" widget="monetary" sum="Devengada"/>
+                <field name="commission_amount" widget="monetary" sum="Earned"/>
                 <field name="is_collected" widget="boolean_toggle"/>
-                <field name="commission_payable" widget="monetary" sum="Pagable"/>
+                <field name="commission_payable" widget="monetary" sum="Payable"/>
                 <field name="currency_id" column_invisible="1"/>
             </list>
         </field>
@@ -28,14 +28,14 @@
             <form create="false">
                 <sheet>
                     <group>
-                        <group string="Origen">
+                        <group string="Source">
                             <field name="target_id"/>
                             <field name="salesperson_id"/>
                             <field name="move_id"/>
                             <field name="invoice_date"/>
                             <field name="move_type"/>
                         </group>
-                        <group string="Cálculo">
+                        <group string="Calculation">
                             <field name="volume" widget="monetary"/>
                             <field name="cost_total" widget="monetary"/>
                             <field name="margin" widget="monetary"/>
@@ -58,14 +58,14 @@
             <search>
                 <field name="salesperson_id"/>
                 <field name="move_id"/>
-                <filter name="filter_collected" string="Cobradas"
+                <filter name="filter_collected" string="Collected"
                         domain="[('is_collected', '=', True)]"/>
-                <filter name="filter_not_collected" string="Sin cobrar"
+                <filter name="filter_not_collected" string="Not Collected"
                         domain="[('is_collected', '=', False)]"/>
                 <group>
-                    <filter name="groupby_salesperson" string="Vendedor"
+                    <filter name="groupby_salesperson" string="Salesperson"
                             context="{'group_by': 'salesperson_id'}"/>
-                    <filter name="groupby_collected" string="Cobro"
+                    <filter name="groupby_collected" string="Collection"
                             context="{'group_by': 'is_collected'}"/>
                 </group>
             </search>
@@ -73,7 +73,7 @@
     </record>
 
     <record id="action_commission_line" model="ir.actions.act_window">
-        <field name="name">Líneas de comisión</field>
+        <field name="name">Commission Lines</field>
         <field name="res_model">yaguven.commission.line</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_commission_line_search"/>

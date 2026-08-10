@@ -1,29 +1,29 @@
 {
-    'name': 'Darakjian — Comisiones',
-    'summary': 'Comisiones por vendedor: tasa única por tramo (cliff) sobre el margen, criterio percibido.',
+    'name': 'Darakjian — Commissions',
+    'summary': 'Salesperson commissions: one cliff rate per tier on the margin, paid when collected.',
     'description': """
-Módulo de comisiones para Darakjian Jewelers.
+Commissions for Darakjian Jewelers.
 
-Lógica de negocio (definida por Ara, aclarada por Gabriel 2026-07-08):
+Business rules (set by Ara, clarified by Gabriel on 2026-07-08):
 
-- Objetivo mensual de volumen de ventas en USD, definido por Janel por vendedor.
-- Tasa única por tramo sobre el TOTAL (efecto "cliff", NO marginal):
-    * ventas < objetivo                     -> 3%
-    * objetivo <= ventas < 125% objetivo    -> 6%
-    * ventas >= 125% objetivo               -> 9%
-- El porcentaje se aplica sobre el MARGEN (precio - costo), no sobre la facturación.
-- Criterio PERCIBIDO: la comisión se vuelve pagable cuando la factura está cobrada.
-- Cálculo MENSUAL, por vendedor INDIVIDUAL.
+- A monthly sales volume target in USD, set by Janel for each salesperson.
+- One rate per tier applied to the TOTAL — a "cliff", NOT marginal:
+    * sales < target                      -> 3%
+    * target <= sales < 125% of target    -> 6%
+    * sales >= 125% of target             -> 9%
+- The rate applies to the MARGIN (price - cost), not to the billed amount.
+- Paid when COLLECTED: a commission becomes payable once the invoice is paid.
+- Computed MONTHLY, per INDIVIDUAL salesperson.
 
-Diseño no invasivo: lee los nativos (account.move, account.move.line,
-account.payment) como datasource de solo lectura y escribe únicamente en modelos
-propios (yaguven.commission.*). No depende ni hereda del módulo de comisiones
-nativo de Odoo (sale_commission).
+Non-invasive by design: it reads the native models (account.move, account.move.line,
+account.payment) as a read-only datasource and writes only to its own models
+(yaguven.commission.*). It neither depends on nor inherits from Odoo's own commission
+module (sale_commission).
 """,
     'author': 'Yagüven C.G.',
     'maintainer': 'Yagüven C.G.',
     'category': 'Sales/Commissions',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'license': 'LGPL-3',
     'depends': [
         'base',

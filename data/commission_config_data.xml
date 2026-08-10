@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Configuración de tramos por defecto (editable; no se pisa en upgrades). -->
+<odoo noupdate="1">
+    <!-- Default tiers, seeded once and then owned by the client.
+
+         `noupdate="1"` is what makes the comment true. Without it every module upgrade
+         rewrote these four rates back to 3/6/9/125, silently discarding anything Janel
+         had adjusted. Nobody had noticed because nobody had edited them yet. -->
     <record id="commission_config_default" model="yaguven.commission.config" context="{'tracking_disable': True}">
-        <field name="name">Comisiones — Darakjian</field>
+        <field name="name">Commissions — Darakjian</field>
         <field name="company_id" ref="base.main_company"/>
         <field name="pct_below">3.0</field>
         <field name="pct_target">6.0</field>

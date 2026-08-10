@@ -9,9 +9,9 @@ from odoo.exceptions import ValidationError
 CODE_RE = re.compile(r'^\s*\[([^\]]+)\]')
 
 MONTHS = [
-    ('1', 'Enero'), ('2', 'Febrero'), ('3', 'Marzo'), ('4', 'Abril'),
-    ('5', 'Mayo'), ('6', 'Junio'), ('7', 'Julio'), ('8', 'Agosto'),
-    ('9', 'Septiembre'), ('10', 'Octubre'), ('11', 'Noviembre'), ('12', 'Diciembre'),
+    ('1', 'January'), ('2', 'February'), ('3', 'March'), ('4', 'April'),
+    ('5', 'May'), ('6', 'June'), ('7', 'July'), ('8', 'August'),
+    ('9', 'September'), ('10', 'October'), ('11', 'November'), ('12', 'December'),
 ]
 
 # Estados de cobro del comprobante que consideramos "percibido".
@@ -27,7 +27,7 @@ class YaguvenCommissionTarget(models.Model):
     """
 
     _name = 'yaguven.commission.target'
-    _description = 'Darakjian — Objetivo mensual de comisión'
+    _description = 'Darakjian — Monthly Commission Target'
     _inherit = ['mail.thread']
     _order = 'year desc, month desc, salesperson_id'
     _rec_name = 'name'
@@ -36,7 +36,7 @@ class YaguvenCommissionTarget(models.Model):
 
     salesperson_id = fields.Many2one(
         'res.users',
-        string='Vendedor',
+        string='Salesperson',
         required=True,
         index=True,
         domain="[('share', '=', False)]",
@@ -54,10 +54,10 @@ class YaguvenCommissionTarget(models.Model):
         tracking=True,
     )
     objective_usd = fields.Monetary(
-        string='Objetivo (USD)',
+        string='Target (USD)',
         currency_field='currency_id',
         tracking=True,
-        help='Objetivo mensual de volumen de ventas. Lo define Janel.',
+        help='Monthly sales volume target. Set by Janel.',
     )
 
     company_id = fields.Many2one(
@@ -69,7 +69,7 @@ class YaguvenCommissionTarget(models.Model):
     currency_id = fields.Many2one(related='company_id.currency_id', store=True)
     config_id = fields.Many2one(
         'yaguven.commission.config',
-        string='Configuración de tramos',
+        string='Tier Settings',
         ondelete='restrict',
         default=lambda self: self.env['yaguven.commission.config']._get_for_company(self.env.company),
     )
@@ -79,54 +79,54 @@ class YaguvenCommissionTarget(models.Model):
 
     # --- Agregados de la pantalla por vendedor ---
     volume_total = fields.Monetary(
-        string='Volumen facturado',
+        string='Billed Volume',
         currency_field='currency_id',
         compute='_compute_totals',
         store=True,
     )
     margin_total = fields.Monetary(
-        string='Margen total',
+        string='Total Margin',
         currency_field='currency_id',
         compute='_compute_totals',
         store=True,
     )
     tier = fields.Selection(
-        [('below', 'Bajo objetivo'), ('target', 'En objetivo'), ('super', 'Sobre objetivo')],
-        string='Tramo alcanzado',
+        [('below', 'Below Target'), ('target', 'At Target'), ('super', 'Above Target')],
+        string='Tier Reached',
         compute='_compute_tier',
         store=True,
     )
     pct = fields.Float(
-        string='% aplicado',
+        string='Rate Applied',
         digits=(5, 2),
         compute='_compute_tier',
         store=True,
     )
     commission_earned = fields.Monetary(
-        string='Comisión devengada',
+        string='Commission Earned',
         currency_field='currency_id',
         compute='_compute_commission_earned',
         store=True,
     )
     commission_collected = fields.Monetary(
-        string='Comisión cobrada',
+        string='Commission Collected',
         currency_field='currency_id',
         compute='_compute_totals',
         store=True,
     )
     commission_pending = fields.Monetary(
-        string='Pendiente de cobro',
+        string='Pending Collection',
         currency_field='currency_id',
         compute='_compute_commission_pending',
         store=True,
     )
-    last_recompute = fields.Datetime(string='Último recálculo', readonly=True)
+    last_recompute = fields.Datetime(string='Last Recompute', readonly=True)
 
     _sql_constraints = [
         (
             'salesperson_period_uniq',
             'unique(salesperson_id, year, month, company_id)',
-            'Ya existe un objetivo para este vendedor en este mes.',
+            'A target already exists for this salesperson in this month.',
         ),
     ]
 
@@ -137,7 +137,7 @@ class YaguvenCommissionTarget(models.Model):
     def _compute_name(self):
         month_label = dict(MONTHS)
         for rec in self:
-            vendor = rec.salesperson_id.name or _('(sin vendedor)')
+            vendor = rec.salesperson_id.name or _('(no salesperson)')
             rec.name = '%s — %s %s' % (vendor, month_label.get(rec.month, ''), rec.year)
 
     @api.depends('line_ids.volume', 'line_ids.margin', 'line_ids.commission_payable')
@@ -173,7 +173,7 @@ class YaguvenCommissionTarget(models.Model):
     def _check_period(self):
         for rec in self:
             if rec.year < 2000 or rec.year > 2100:
-                raise ValidationError(_('El año del período no es válido.'))
+                raise ValidationError(_('The period year is not valid.'))
 
     # ------------------------------------------------------------------
     # Motor de recálculo
