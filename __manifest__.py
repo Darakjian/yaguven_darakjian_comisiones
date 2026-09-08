@@ -22,6 +22,7 @@ module (sale_commission).
 """,
     'author': 'Yagüven C.G.',
     'maintainer': 'Yagüven C.G.',
+    'website': 'https://github.com/Darakjian/yaguven_darakjian_comisiones',
     'category': 'Sales/Commissions',
     'version': '19.0.1.2.0',
     'license': 'LGPL-3',
